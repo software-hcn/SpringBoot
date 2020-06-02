@@ -126,42 +126,41 @@ Docker: 进程  （以前以容器启动）
 
    - EL表达式
 
-         ```java
+     ```java
+     person:
+         name: qinjiang${random.uuid} # 随机uuid
+         age: ${random.int}  # 随机int
+         happy: false
+         birth: 2000/01/01
+         maps: {k1: v1,k2: v2}
+         lists:
+           - code
+           - girl
+           - music
+         dog:
+           name: ${person.hello:other}_旺财
+           age: 1
+     ```
    
-   person:
-       name: qinjiang${random.uuid} # 随机uuid
-       age: ${random.int}  # 随机int
-       happy: false
-       birth: 2000/01/01
-       maps: {k1: v1,k2: v2}
-       lists:
-         - code
-         - girl
-         - music
-       dog:
-         name: ${person.hello:other}_旺财
-         age: 1
-         ```
-
-   2. properties
-
-   - @PropertySource(value = "classpath:person.properties")
-
-   ​       @Value(${name})
-
-   3. 对比
-
-   @Value这个使用起来并不友好！我们需要为每个属性单独注解赋值，比较麻烦；我们来看个功能对比图
-
-   ![](E:\MarkDown\SpringBoot-Note\img\640.png)
-
-   1、@ConfigurationProperties只需要写一次即可 ， @Value则需要每个字段都添加
-
-   2、松散绑定：这个什么意思呢? 比如我的yml中写的last-name，这个和lastName是一样的， - 后面跟着的字母默认是大写的。这就是松散绑定。可以测试一下
-
-   3、JSR303数据校验 ， 这个就是我们可以在字段是增加一层过滤器验证 ， 可以保证数据的合法性
-
-   4、复杂类型封装，yml中可以封装对象 ， 使用value就不支持
+2. properties
+   
+- @PropertySource(value = "classpath:person.properties")
+   
+​       @Value(${name})
+   
+3. 对比
+   
+@Value这个使用起来并不友好！我们需要为每个属性单独注解赋值，比较麻烦；我们来看个功能对比图
+   
+![](E:\MarkDown\SpringBoot-Note\img\640.png)
+   
+1、@ConfigurationProperties只需要写一次即可 ， @Value则需要每个字段都添加
+   
+2、松散绑定：这个什么意思呢? 比如我的yml中写的last-name，这个和lastName是一样的， - 后面跟着的字母默认是大写的。这就是松散绑定。可以测试一下
+   
+3、JSR303数据校验 ， 这个就是我们可以在字段是增加一层过滤器验证 ， 可以保证数据的合法性
+   
+4、复杂类型封装，yml中可以封装对象 ， 使用value就不支持
 
 **结论：**
 
