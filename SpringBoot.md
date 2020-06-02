@@ -153,7 +153,7 @@ Docker: 进程  （以前以容器启动）
 
    @Value这个使用起来并不友好！我们需要为每个属性单独注解赋值，比较麻烦；我们来看个功能对比图
 
-   ![](E:\MarkDown\640.png)
+   ![](E:\MarkDown\SpringBoot-Note\img\640.png)
 
    1、@ConfigurationProperties只需要写一次即可 ， @Value则需要每个字段都添加
 
