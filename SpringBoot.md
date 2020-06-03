@@ -2,10 +2,16 @@
 
 ## 1.SprintBoot与SpringCloud
 
-## 2.第一个SpringBoot程序
+1. 历史
 
-1. 网站新建 [Spring官网](https://start.spring.io/)
-2. IDEA新建 。因为IDEA集成了这个网站
+2. 第一个SpringBoot程序
+
+- 网站新建 [Spring官网](https://start.spring.io/)
+- IDEA新建 。因为IDEA集成了这个网站
+
+> 1. 建立过程和SSM一样的初始信息
+> 2. 端口修改
+> 3. banner
 
 >1. 建立过程和SSM一样的配置信息
 >
@@ -13,7 +19,7 @@
 >
 >3. banner
 
-## 3.自动装配原理
+3. 自动装配原理初探
 
 **pom.xml**:
 
@@ -75,9 +81,14 @@ Docker: 进程  （以前以容器启动）
 
 
 
-## 4.yaml语法
+SpringBoot配置了什么？，能不能修改
 
-**基本语法**
+- XXXAutoConfiguration   向容器中自动配置组件
+- XXXProperties    自动配置类，配置配置文件的自定义内容
+
+## 2.yaml语法
+
+### 1.基本语法
 
 1. key-value
 
@@ -107,59 +118,68 @@ Docker: 进程  （以前以容器启动）
 
    >可以注入到配置类中
 
-   **设置属性**
+### 2.绑定属性
 
-   以前的：@Value("value")
+以前的：@Value("value")
 
-   现在: 
+现在: 
 
-   1. yaml
+1. yaml
 
-   - @ConfigurationProperties(prefix="person")
+- 添加依赖（非必须）
 
-   ```java
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-configuration-processor</artifactId>
-   </dependency>
-   ```
+```java
+//springboot配置注解处理器
+<dependency>
+     <groupId>org.springframework.boot</groupId>
+     <artifactId>spring-boot-configuration-processor</artifactId>
+</dependency>
+```
 
-   - EL表达式
+- @ConfigurationProperties(prefix="person")
 
-     ```java
-     person:
-         name: qinjiang${random.uuid} # 随机uuid
-         age: ${random.int}  # 随机int
-         happy: false
-         birth: 2000/01/01
-         maps: {k1: v1,k2: v2}
-         lists:
-           - code
-           - girl
-           - music
-         dog:
-           name: ${person.hello:other}_旺财
-           age: 1
-     ```
-   
-2. properties
-   
-- @PropertySource(value = "classpath:person.properties")
-   
+- EL表达式-占位符
+
+  ```java
+  person:
+      name: qinjiang${random.uuid} # 随机uuid
+      age: ${random.int}  # 随机int
+      happy: false
+      birth: 2000/01/01
+      maps: {k1: v1,k2: v2}
+      lists:
+        - code
+        - girl
+        - music
+      dog:
+        name: ${person.hello:other}_旺财
+        age: 1
+  ```
+
+2. properties文件
+
+- @PropertySource(value = "classpath:person.properties")   				//加载指定的配置文件
+
 ​       @Value(${name})
-   
+
 3. 对比
-   
+
 @Value这个使用起来并不友好！我们需要为每个属性单独注解赋值，比较麻烦；我们来看个功能对比图
-   
-![](E:\MarkDown\SpringBoot-Note\img\640.png)
-   
+
+| @ConfigurationProperties | @Value               |          |
+| ------------------------ | -------------------- | -------- |
+| 功能                     | 批量注入配置文件属性 | 单个指定 |
+| 松散绑定(语法)           | 支持                 | 不支持   |
+| spEL                     | 不支持               | 支持     |
+| JSR303校验               | 支持                 | 不支持   |
+| 复杂类型                 | 支持                 | 不支持   |
+
 1、@ConfigurationProperties只需要写一次即可 ， @Value则需要每个字段都添加
-   
+
 2、松散绑定：这个什么意思呢? 比如我的yml中写的last-name，这个和lastName是一样的， - 后面跟着的字母默认是大写的。这就是松散绑定。可以测试一下
-   
+
 3、JSR303数据校验 ， 这个就是我们可以在字段是增加一层过滤器验证 ， 可以保证数据的合法性
-   
+
 4、复杂类型封装，yml中可以封装对象 ， 使用value就不支持
 
 **结论：**
@@ -169,3 +189,140 @@ Docker: 进程  （以前以容器启动）
 如果我们在某个业务中，只需要获取配置文件中的某个值，可以使用一下 @value；
 
 如果说，我们专门编写了一个JavaBean来和配置文件进行一一映射，就直接@configurationProperties，不要犹豫！
+
+### 3.JSR303与多环境切换
+
+**JSR303**:
+
+```java
+@Validate		//开启验证
+//有其他注解
+@Email			//加在段上，是否为Email格式。还可以设置错误提示的值@Email(message="邮箱格式错误")
+```
+
+其他Constrain：
+
+[IBM-JSR303](https://www.ibm.com/developerworks/cn/java/j-lo-jsr303/index.html)
+
+**多环境**
+
+1. 配置文件位置
+
+   ```java
+   优先级1：项目路径下的config文件夹配置文件
+   优先级2：项目路径下配置文件
+   优先级3：资源路径下的config文件夹配置文件
+   优先级4：资源路径下配置文件
+   ```
+
+   
+
+2. 环境配置
+
+   - 新建多个配置文件（yaml可以不用，直接使用分隔符）
+   - Spring.profile.active调用
+
+[官方外部配置说明文档](https://docs.spring.io/spring-boot/docs/current-SNAPSHOT/reference/htmlsingle/#boot-features-external-config)
+
+## 3.SpringBoot项目
+
+### 静态资源
+
+1. ```Java
+   public void addResourceHandlers(ResourceHandlerRegistry registry) {
+       if (!this.resourceProperties.isAddMappings()) {
+           logger.debug("Default resource handling disabled");
+       } else {
+           Duration cachePeriod = this.resourceProperties.getCache().getPeriod();
+           CacheControl cacheControl = this.resourceProperties.getCache().getCachecontrol().toHttpCacheControl();
+           //1.
+           if (!registry.hasMappingForPattern("/webjars/**")) {
+               this.customizeResourceHandlerRegistration(registry.addResourceHandler(new String[]{"/webjars/**"}).addResourceLocations(new String[]{"classpath:/META-INF/resources/webjars/"}).setCachePeriod(this.getSeconds(cachePeriod)).setCacheControl(cacheControl));
+           }
+   
+           //2.
+           
+                   String staticPathPattern = this.mvcProperties.getStaticPathPattern();
+                   if (!registry.hasMappingForPattern(staticPathPattern)) {
+                       this.customizeResourceHandlerRegistration(registry.addResourceHandler(new String[]{staticPathPattern}).addResourceLocations(WebMvcAutoConfiguration.getResourceLocations(this.resourceProperties.getStaticLocations())).setCachePeriod(this.getSeconds(cachePeriod)).setCacheControl(cacheControl));
+                   }
+   
+               }
+           }
+   
+   ```
+
+
+
+(1).SpringBoot处理静态资源
+
++ webjar       `localhost:8080/webjar/`
+
+- public 、static、/**、resource        `localhost:8080/`
+
+(2)优先级：resources>static>public
+
+### 首页如何定制
+
+```java
+"classpath:/META-INF/resources/", "classpath:/resources/", "classpath:/static/", "classpath:/public/"
+```
+
+### 模板引擎Thymeleaf
+
+**前提**：要使用Thymeleaf，只需导入对应的依赖，并将html放入template
+
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+```
+
+```Java
+public static final String DEFAULT_PREFIX = "classpath:/templates/";
+public static final String DEFAULT_SUFFIX = ".html";
+```
+
+**使用**：导入约束，th可代替HTML==所有==的元素,  th:元素名
+
+```xml
+#约束
+xmlns:th="http://www.thymeleaf.org"
+```
+
+```Java
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div th:text="${msg}"></div>
+</body>
+</html>
+```
+
+**语法**
+
+取变量和遍历
+
+```html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <!--<div th:text="${msg}"></div>-->
+    <div th:utext="${msg}"></div>  <!--转义-->
+    <hr>
+    <!--<h3 th:each="user:${users}" th:text="${user}"></h3>-->
+    <h3 th:each="user:${users}" >[[${user}]]</h3>
+</body>
+</body>
+</html>
+```
+
